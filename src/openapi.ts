@@ -9,11 +9,31 @@ extendZodWithOpenApi(z);
 
 export const registry = new OpenAPIRegistry();
 
-registry.registerComponent("securitySchemes", "bearerAuth", {
-  type: "http",
-  scheme: "bearer",
-  bearerFormat: "JWT",
-});
+export const bearerAuth = registry.registerComponent(
+  "securitySchemes",
+  "bearerAuth",
+  {
+    type: "http",
+    scheme: "bearer",
+    bearerFormat: "JWT",
+  },
+);
+
+// Common error response shapes (match the error handler in app.ts)
+export const ErrorSchema = z
+  .object({
+    error: z.string().openapi({ example: "Error message" }),
+  })
+  .openapi("Error");
+
+export const ValidationErrorSchema = z
+  .object({
+    error: z.string().openapi({ example: "Validation failed" }),
+    details: z.record(z.string(), z.array(z.string())).openapi({
+      example: { body: ["username: Too small: expected string to have >=3 characters"] },
+    }),
+  })
+  .openapi("ValidationError");
 
 export function generateOpenApiDocument() {
   const generator = new OpenApiGeneratorV3(registry.definitions);
