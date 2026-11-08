@@ -1,4 +1,4 @@
-import "dotenv/config"; // must be first: loads .env before other modules read process.env
+import "dotenv/config"; // must be the first import
 import express from "express";
 import type { NextFunction, Request, Response } from "express";
 import swaggerUi from "swagger-ui-express";
@@ -16,16 +16,16 @@ app.use(cookieParser());
 app.use("/auth", authRoutes);
 app.use("/announcements", announcementsRoutes);
 
-// Generated after routes are imported, so all registerPath() calls are included
+// Built after route imports, so all paths are registered
 const openApiDocument = generateOpenApiDocument();
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiDocument));
 
-// 404 Not Found handler - must be after all routes
+// 404 handler (after all routes)
 app.use((_req: Request, res: Response) => {
   res.status(404).json({ error: "Not found" });
 });
 
-// Error handling middleware
+// Error handler
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   console.error(err);
 

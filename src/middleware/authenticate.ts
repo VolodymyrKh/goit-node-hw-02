@@ -11,11 +11,11 @@ export const JWT_SECRET: string = secret;
 export type TokenType = "access" | "refresh";
 
 export interface TokenPayload extends jwt.JwtPayload {
-  sub: string; // user id (JWT requires sub to be a string)
+  sub: string; // user id
   type: TokenType;
 }
 
-// Module augmentation: lets TypeScript know about req.user
+// Adds req.user to the Express Request type
 declare global {
   namespace Express {
     interface Request {
@@ -24,11 +24,7 @@ declare global {
   }
 }
 
-/**
- * Verifies a JWT and checks that it is of the expected type.
- * Throws jsonwebtoken errors for a bad signature / expired token,
- * and a plain Error for a wrong payload shape or token type.
- */
+// Checks signature, expiry and token type; throws on failure
 export function verifyToken(token: string, expectedType: TokenType): TokenPayload {
   const payload = jwt.verify(token, JWT_SECRET);
 
@@ -62,7 +58,7 @@ export const authenticate: RequestHandler = (req, _res, next) => {
   next();
 };
 
-/** Returns the authenticated user's id. Use only after `authenticate`. */
+// Use only after authenticate
 export function getUserId(req: Request): number {
   if (!req.user) {
     throw createHttpError(401, "Unauthorized");

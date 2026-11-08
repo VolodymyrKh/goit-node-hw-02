@@ -57,7 +57,7 @@ router.delete(
 
 export default router;
 
-// ---------- OpenAPI documentation ----------
+// OpenAPI docs
 
 const json = <T>(schema: T) => ({ "application/json": { schema } });
 const security = [{ [bearerAuth.name]: [] }];

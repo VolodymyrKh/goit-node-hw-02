@@ -1,5 +1,5 @@
 import { z } from "zod";
-import "../openapi.ts"; // ensures extendZodWithOpenApi(z) has run
+import "../openapi.ts"; // runs extendZodWithOpenApi(z)
 import { UserSchema } from "./auth.validator.ts";
 
 export const CATEGORIES = ["sale", "service", "job", "other"] as const;
@@ -7,7 +7,7 @@ export const PER_PAGE = 10;
 
 const categorySchema = z.enum(CATEGORIES).openapi({ example: "sale" });
 
-// ---------- Request schemas ----------
+// Request schemas
 
 export const createAnnouncementSchema = z
   .object({
@@ -65,7 +65,7 @@ export type UpdateAnnouncementBody = z.infer<typeof updateAnnouncementSchema>;
 export type AnnouncementIdParams = z.infer<typeof announcementIdParamsSchema>;
 export type ListAnnouncementsQuery = z.infer<typeof listAnnouncementsQuerySchema>;
 
-// ---------- Response schemas (OpenAPI only) ----------
+// Response schemas (OpenAPI only)
 
 export const AnnouncementSchema = z
   .object({

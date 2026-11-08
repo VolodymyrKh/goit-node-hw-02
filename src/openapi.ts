@@ -19,7 +19,7 @@ export const bearerAuth = registry.registerComponent(
   },
 );
 
-// Common error response shapes (match the error handler in app.ts)
+// Shared error schemas (match the error handler in app.ts)
 export const ErrorSchema = z
   .object({
     error: z.string().openapi({ example: "Error message" }),
@@ -41,9 +41,9 @@ export function generateOpenApiDocument() {
   return generator.generateDocument({
     openapi: "3.0.0",
     info: {
-      title: "Your API",
+      title: "Announcements Board API",
       version: "1.0.0",
-      description: "REST API for your project",
+      description: "REST API for an announcements board with JWT authentication",
     },
     servers: [{ url: "http://localhost:3000" }],
   });

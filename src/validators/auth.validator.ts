@@ -1,7 +1,7 @@
 import { z } from "zod";
-import "../openapi.ts"; // ensures extendZodWithOpenApi(z) has run
+import "../openapi.ts"; // runs extendZodWithOpenApi(z)
 
-// ---------- Request schemas ----------
+// Request schemas
 
 export const registerSchema = z
   .object({
@@ -34,7 +34,7 @@ export type RegisterBody = z.infer<typeof registerSchema>;
 export type LoginBody = z.infer<typeof loginSchema>;
 export type RefreshBody = z.infer<typeof refreshSchema>;
 
-// ---------- Response schemas (OpenAPI only) ----------
+// Response schemas (OpenAPI only)
 
 export const UserSchema = z
   .object({

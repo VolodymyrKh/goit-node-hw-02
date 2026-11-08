@@ -16,11 +16,10 @@ const SALT_ROUNDS = 10;
 const ACCESS_TOKEN_TTL = "15m";
 const REFRESH_TOKEN_TTL = "7d";
 
-// Used when the user is not found, so login takes the same time either way
-// and response timing doesn't reveal whether a username exists.
+// Compared when the user is missing, so timing doesn't reveal valid usernames
 const DUMMY_HASH = bcrypt.hashSync("dummy-password", SALT_ROUNDS);
 
-// Fields that are safe to return to the client (never the password)
+// Public user fields (no password)
 export const publicUserSelect = {
   id: true,
   username: true,
@@ -36,7 +35,7 @@ function generateTokens(userId: number) {
     expiresIn: ACCESS_TOKEN_TTL,
   });
 
-  // jwtid makes every refresh token unique, even if two are issued in the same second
+  // jwtid keeps tokens unique within the same second
   const refreshToken = jwt.sign({ type: "refresh" }, JWT_SECRET, {
     subject: sub,
     expiresIn: REFRESH_TOKEN_TTL,
@@ -89,7 +88,7 @@ export const login: RequestHandler = async (req, res) => {
 
   const tokens = generateTokens(user.id);
 
-  // Replace the user's old refresh token(s) with the new one
+  // Replace old refresh tokens
   await prisma.$transaction([
     prisma.refreshToken.deleteMany({ where: { userId: user.id } }),
     prisma.refreshToken.create({
@@ -146,7 +145,7 @@ export const refresh: RequestHandler = async (req, res) => {
 export const logout: RequestHandler = async (req, res) => {
   const userId = getUserId(req);
 
-  // deleteMany doesn't throw if nothing is found (unlike delete)
+  // deleteMany doesn't throw when nothing matches
   await prisma.refreshToken.deleteMany({ where: { userId } });
 
   res.status(204).end();

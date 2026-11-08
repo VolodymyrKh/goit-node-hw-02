@@ -3,7 +3,7 @@ import type { ZodType, core } from "zod";
 
 type Source = "body" | "params" | "query";
 
-// "username: Too small..." or just the message for object-level (refine) issues
+// "field: message", or just the message for root-level issues
 const formatIssue = (issue: core.$ZodIssue): string =>
   issue.path.length > 0
     ? `${issue.path.join(".")}: ${issue.message}`
@@ -22,8 +22,7 @@ const validate =
       return;
     }
 
-    // Replace raw input with parsed data (coerced numbers, defaults, trimmed strings).
-    // In Express 5 req.query is a getter, so it can't be assigned directly.
+    // Store parsed data; req.query is a getter in Express 5
     if (source === "query") {
       Object.defineProperty(req, "query", {
         value: result.data,

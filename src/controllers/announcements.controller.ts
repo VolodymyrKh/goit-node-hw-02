@@ -13,7 +13,7 @@ import {
   type UpdateAnnouncementBody,
 } from "../validators/announcements.validator.ts";
 
-// Response shape: announcement fields + author (without password and without raw userId)
+// Announcement with author, without password and userId
 const announcementSelect = {
   id: true,
   title: true,
@@ -27,7 +27,7 @@ const announcementSelect = {
 
 // GET /announcements?search=&sort=newest|oldest&page=1
 export const listAnnouncements: RequestHandler = async (req, res) => {
-  // req.query was already parsed by validateQuery: page is a number, sort has a default
+  // Already parsed by validateQuery
   const { search, sort, page } = req.query as unknown as ListAnnouncementsQuery;
 
   const where: Prisma.AnnouncementWhereInput = search
@@ -67,7 +67,7 @@ export const getAnnouncementById: RequestHandler = async (req, res) => {
     select: announcementSelect,
   });
 
-  // findUnique returns null (doesn't throw), so 404 is handled manually
+  // findUnique returns null instead of throwing
   if (!announcement) {
     throw createHttpError(404, "Announcement not found");
   }
@@ -75,10 +75,7 @@ export const getAnnouncementById: RequestHandler = async (req, res) => {
   res.json(announcement);
 };
 
-/**
- * Ownership check: the announcement must exist (404)
- * and belong to the current user (403).
- */
+// 404 if not found, 403 if owned by another user
 async function assertOwnership(announcementId: number, userId: number) {
   const announcement = await prisma.announcement.findUnique({
     where: { id: announcementId },
@@ -95,7 +92,7 @@ async function assertOwnership(announcementId: number, userId: number) {
 
 // POST /announcements
 export const createAnnouncement: RequestHandler = async (req, res) => {
-  // Author comes from the access token, never from the request body
+  // Author comes from the token, not the body
   const userId = getUserId(req);
   const data = req.body as CreateAnnouncementBody;
 
@@ -115,7 +112,7 @@ export const updateAnnouncement: RequestHandler = async (req, res) => {
 
   await assertOwnership(id, userId);
 
-  // updatedAt is refreshed automatically by @updatedAt
+  // updatedAt is set by @updatedAt
   const announcement = await prisma.announcement.update({
     where: { id },
     data,
@@ -134,6 +131,6 @@ export const deleteAnnouncement: RequestHandler = async (req, res) => {
 
   await prisma.announcement.delete({ where: { id } });
 
-  // 204 must not have a response body
+  // 204 has no body
   res.status(204).end();
 };
