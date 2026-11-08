@@ -1,14 +1,20 @@
+import "dotenv/config"; // must be first: loads .env before other modules read process.env
 import express from "express";
 import type { NextFunction, Request, Response } from "express";
 import swaggerUi from "swagger-ui-express";
 import cookieParser from "cookie-parser";
 
 import { generateOpenApiDocument } from "./src/openapi.ts";
+import authRoutes from "./src/routes/auth.routes.ts";
 
 const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+
+app.use("/auth", authRoutes);
+
+// Generated after routes are imported, so all registerPath() calls are included
 const openApiDocument = generateOpenApiDocument();
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiDocument));
 
